@@ -1,0 +1,25 @@
+name: Feature request
+description: Suggest an improvement or a new combat-log visualization
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What information or workflow is currently missing?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe what ImpactBar should display or do.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Relevant combat-log evidence
+      description: Include only minimal anonymized examples. Do not upload complete personal logs.

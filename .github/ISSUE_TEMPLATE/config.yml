@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: EVE Online third-party policies
+    url: https://support.eveonline.com/hc/en-us/articles/8564030965660-Third-Party-Policies
+    about: Review the current policy before requesting client integration or automation.

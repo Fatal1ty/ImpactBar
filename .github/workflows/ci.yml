@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test and build
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Show Swift version
+        run: swift --version
+
+      - name: Validate app metadata
+        run: plutil -lint Support/Info.plist
+
+      - name: Run tests
+        run: swift test --disable-sandbox
+
+      - name: Build app bundle
+        run: scripts/build-app.sh

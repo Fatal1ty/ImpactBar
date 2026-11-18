@@ -1,0 +1,45 @@
+name: Bug report
+description: Report a reproducible problem in ImpactBar
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to report a problem. Remove character names and other personal information from screenshots and logs.
+  - type: input
+    id: version
+    attributes:
+      label: ImpactBar version
+      placeholder: "For example: 0.3.0 (13)"
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and Mac architecture
+      placeholder: "For example: macOS 15.1, Apple Silicon"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Launch ImpactBar
+        2. Open …
+        3. Observe …
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add a cropped screenshot or minimal anonymized log lines if they help.

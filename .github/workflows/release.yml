@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build universal macOS release
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Validate tag and app version
+        run: |
+          version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' Support/Info.plist)"
+          test "$GITHUB_REF_NAME" = "v$version"
+
+      - name: Run tests
+        run: swift test --disable-sandbox
+
+      - name: Build release archive
+        run: scripts/package-release.sh
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            dist/ImpactBar-*-macOS-universal.zip \
+            dist/ImpactBar-*-macOS-universal.zip.sha256 \
+            --generate-notes \
+            --title "ImpactBar ${GITHUB_REF_NAME#v}"

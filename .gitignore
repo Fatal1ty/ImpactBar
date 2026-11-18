@@ -1,0 +1,29 @@
+# macOS metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Xcode
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcuserstate
+
+# Local builds and release archives
+dist/
+*.dSYM/
+*.dSYM.zip
+
+# Local secrets and signing material
+.env
+.env.*
+!.env.example
+*.cer
+*.p12
+*.pem
+*.mobileprovision
