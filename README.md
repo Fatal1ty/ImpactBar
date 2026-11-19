@@ -5,7 +5,15 @@
 <h1 align="center">ImpactBar</h1>
 
 <p align="center">
-  A native macOS combat-log overlay for EVE Online turret hit quality and energy neutralizer tracking.
+  Turret hit quality and capacitor pressure, at a glance.<br>
+  <sub>A native macOS combat-log overlay for EVE Online.</sub>
+</p>
+
+<p align="center">
+  <a href="#-download">Download</a> ·
+  <a href="#-quick-start">Quick start</a> ·
+  <a href="#-features">Features</a> ·
+  <a href="#-build-from-source">Build from source</a>
 </p>
 
 <p align="center">
@@ -26,71 +34,107 @@
   <sub>Energy-neutralizer overlay</sub>
 </p>
 
-ImpactBar reads new combat-log lines from `~/Documents/EVE/logs/Gamelogs`. It does not connect to the game process, send commands, collect analytics, or use the network.
+ImpactBar puts two small overlays above EVE, so you can follow your turret application and neutralizer results during a fight. Move them where you want, enable each feature independently, and control everything from the macOS menu bar.
 
-## Download
+It reads new combat-log lines from `~/Documents/EVE/logs/Gamelogs` and processes them locally.
+
+## 📦 Download
 
 Download the latest macOS archive from [GitHub Releases](https://github.com/Fatal1ty/ImpactBar/releases/latest), unzip it, and move `ImpactBar.app` to `Applications`.
 
-Current public builds are ad-hoc signed because the project does not yet use an Apple Developer ID. On first launch, macOS may block the app. Open **System Settings → Privacy & Security**, locate the ImpactBar message, and choose **Open Anyway**. It may also request access to the Documents folder so it can read EVE logs.
+**Requires macOS 13 or later.** Release archives include both Apple Silicon and Intel binaries.
 
-## Features
+Current public builds are ad-hoc signed because the project does not yet use an Apple Developer ID. On first launch, macOS may block the app. Open **System Settings → Privacy & Security**, locate the ImpactBar message, and choose **Open Anyway**. Allow access to Documents if prompted so ImpactBar can read EVE logs.
 
-### Turret hit quality
+## 🚀 Quick start
 
-- A normalized rolling average of the last ten outgoing turret results.
-- Continuous color interpolation between fixed hit-quality thresholds.
-- A six-pixel activity marker for a zero-value `Miss` without changing the average.
-- A short double border pulse for `Wrecks`, which stays outside the average.
-- Horizontal or bottom-to-top vertical orientation.
-- Automatic resets when the target, character, or game session changes, or after 30 seconds without a turret event.
-- Lasers, blasters, railguns, autocannons, artillery, and entropic disintegrators are supported; missiles, drones, and incoming damage are ignored.
+1. Launch `ImpactBar.app` and open its crosshair icon in the menu bar.
+2. Select the character whose combat log you want to follow.
+3. Enable **Turret Hit Quality**, **Energy Neutralizers**, or both.
+4. Choose **Move Overlays**, drag the panels into position, and select **Finish Moving Overlays**.
+5. Try **Testing → Turret Overlay** or **Testing → Neutralizer Overlay** to preview the panels before a fight.
 
-### Energy neutralizers
+ImpactBar starts at the end of the selected log, so launching the app or changing characters does not replay earlier combat. EVE combat logging must be enabled.
 
-- One compact overlay for one active target at a time.
-- The first value is the amount drained during the latest module cycle.
-- The second value is the accumulated amount drained from the current target.
-- Neutralizer data resets after 10 minutes without a neutralizer event and on undocking. With Hide When Idle disabled, cleared values appear as dashes.
-- Three activity segments confirm that new cycles are still being observed without estimating the target's capacitor capacity.
-- `DRAINING`, `DRY`, `PINNED`, and `RECOVERED` state detection.
-- Positive drains at or below 50% of the current ceiling immediately indicate `PINNED`. A drain can adjust the ceiling or signal recovery only if it reaches at least 75% of the highest single drain observed for the target.
-- Support for any number of neutralizer modules. Events within two seconds are grouped for the displayed volley total, while state detection uses each event separately.
-- Optional dry and recovered sounds with independent controls.
+## ✨ Features
 
-### Native macOS integration
+### 🎯 Turret hit quality
+
+A slim bar shows a normalized rolling average of your last ten outgoing turret results. Its length and color change with hit quality, making changes in application visible while you watch the fight.
+
+- **Smooth feedback.** Colors blend continuously between hit-quality thresholds.
+- **Misses stay visible.** A miss contributes zero to the average, with a small activity marker to show that a shot occurred.
+- **A little celebration for `Wrecks`.** A short double border pulse highlights the hit. Wrecking hits stay outside the rolling average.
+- **Flexible placement.** Choose a horizontal bar or a bottom-to-top vertical bar.
+- **A fresh average for each engagement.** The window resets on target, character, or game-session changes, on undocking, and after 30 seconds without a turret event.
+
+Lasers, blasters, railguns, autocannons, artillery, and entropic disintegrators are supported. Missiles, drones, and incoming damage are ignored.
+
+### ⚡ Energy neutralizers
+
+The neutralizer panel follows one target at a time. The lightning bolt and three activity segments take on the color of the current state.
+
+For a display such as **`150 GJ · 321 GJ`**, the left number is the latest volley and the right number is the total drained from the current target. Synchronous module events within two seconds are added together for the volley display.
+
+| State | Color | What it tells you |
+| --- | --- | --- |
+| `DRAINING` | Amber | Neutralization is underway. |
+| `DRY` | Ice white | A zero-GJ event was observed while draining or recovering, or as the first event. |
+| `PINNED` | Cyan | A low drain was observed, or a zero-GJ event followed `DRY` or `PINNED`. |
+| `RECOVERED` | Coral | A sufficiently large drain was observed after `DRY` or `PINNED`. |
+
+The bright segment advances with each new volley and wraps after the third segment. Dimmer segments show recent activity. The segments indicate incoming results without estimating the target's capacitor capacity.
+
+**Sound cues:** celebrate `DRY` with **Glass** and hear **Submarine** on `RECOVERED`. Both cues have independent enable and test controls under **Sounds → Neutralizers**.
+
+<details>
+<summary>How state detection and resets work</summary>
+
+State detection evaluates each module event as it arrives, even when multiple events share one displayed volley.
+
+- The first positive drain establishes the current ceiling and the highest observed single drain for the target.
+- A positive result at or below **50% of the current ceiling** immediately gives `PINNED`.
+- A result above that threshold can update the ceiling or signal recovery when it reaches at least **75% of the highest observed single drain**. A new maximum raises both values.
+- Intermediate results keep the previous state. Zero-GJ events use the `DRY` / `PINNED` rules shown above.
+- The ceiling is shared across modules for the current target. Modules with different drain strengths can therefore affect state detection. Results are most predictable with similarly sized modules operating inside optimal range.
+- Target data clears on target, character, or game-session changes, on undocking, on a target-gone notification, and after **10 minutes without a neutralizer event**.
+
+With **Hide When Idle** disabled, cleared values appear as **`— GJ · — GJ`**. Hiding an idle panel happens earlier and preserves its data until a reset occurs.
+
+</details>
+
+### Made for macOS
 
 - Always-on-top overlays, including full-screen EVE.
-- Automatic active-log detection and character selection from each log's `Listener` field.
+- Automatic active-log discovery and character selection.
 - Independent feature toggles and saved overlay positions.
-- Controls for movement, visibility, appearance, testing, orientation, and sounds in the menu-bar app.
-- No Dock icon and no persistent main window.
+- Menu-bar controls for movement, visibility, appearance, orientation, testing, and sounds.
+- A menu-bar app with no Dock icon or persistent main window.
 
-## Usage
+## 🛠️ Troubleshooting
 
-1. Launch `ImpactBar.app`.
-2. Select the active EVE character from the crosshair menu-bar icon.
-3. Enable or disable **Turret Hit Quality** and **Energy Neutralizers** independently.
-4. Choose **Move Overlays**, drag the enabled overlays, and choose **Finish Moving Overlays**.
-5. Use **Testing → Turret Overlay** or **Testing → Neutralizer Overlay** to preview the UI without entering combat.
-
-ImpactBar starts reading the selected log at its current end, so launching the app or changing characters does not replay earlier combat.
-
-## Troubleshooting
-
-### No characters are listed
+<details>
+<summary>No characters are listed</summary>
 
 Make sure EVE combat logging is enabled and that a game log created within the last 24 hours exists in `~/Documents/EVE/logs/Gamelogs`. Use **Open Logs Folder** from the ImpactBar menu to inspect the directory.
 
-### An overlay is missing
+</details>
 
-Check that its feature is enabled, choose **Show Overlays**, and use **Reset All Overlay Positions…** if it may be outside the visible screen area.
+<details>
+<summary>An overlay is missing</summary>
 
-### Sounds are silent
+Check that its feature is enabled, choose **Show Overlays**, and use **Reset All Overlay Positions…** if it may be outside the visible screen area. Check **Hide When Idle** if the panel disappears between fights.
+
+</details>
+
+<details>
+<summary>Sounds are silent</summary>
 
 Check both **Sounds → Enable Sounds** and **Sounds → Neutralizers → Enable Neutralizer Sounds**. Dry and recovered cues can also be enabled and tested independently.
 
-## Build from source
+</details>
+
+## 🔧 Build from source
 
 Requirements:
 
@@ -118,11 +162,11 @@ swift test --disable-sandbox
 
 The release workflow publishes tagged versions as universal macOS archives. Developer ID signing and notarization are intentionally deferred until an Apple Developer Program identity is available.
 
-## Privacy
+## 🔒 Privacy
 
 ImpactBar processes EVE combat logs locally. It does not transmit log contents, collect analytics, or make network requests. Character names are only read from local log headers to let the user choose the active log.
 
-## Contributing
+## 🤝 Contributing
 
 Bug reports and focused pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a change. Security-sensitive reports should follow [SECURITY.md](SECURITY.md).
 
