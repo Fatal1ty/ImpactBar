@@ -76,12 +76,12 @@ The neutralizer panel follows one target at a time. The lightning bolt and three
 
 For a display such as **`150 GJ · 321 GJ`**, the left number is the latest volley and the right number is the total drained from the current target. Synchronous module events within two seconds are added together for the volley display.
 
-| State | Color | What it tells you |
-| --- | --- | --- |
-| `DRAINING` | ![Amber](docs/images/color-amber.svg) | Neutralization is underway. |
-| `DRY` | ![Ice white](docs/images/color-ice-white.svg) | A zero-GJ event was observed while draining or recovering, or as the first event. |
-| `PINNED` | ![Cyan](docs/images/color-cyan.svg) | A low drain was observed, or a zero-GJ event followed `DRY` or `PINNED`. |
-| `RECOVERED` | ![Coral](docs/images/color-coral.svg) | A sufficiently large drain was observed after `DRY` or `PINNED`. |
+| State | What it tells you |
+| --- | --- |
+| ![DRAINING](docs/images/state-draining.svg) | Neutralization is underway. |
+| ![DRY](docs/images/state-dry.svg) | A zero-GJ event was observed while draining or recovering, or as the first event. |
+| ![PINNED](docs/images/state-pinned.svg) | A low drain was observed, or a zero-GJ event followed `DRY` or `PINNED`. |
+| ![RECOVERED](docs/images/state-recovered.svg) | A sufficiently large drain was observed after `DRY` or `PINNED`. |
 
 The bright segment advances with each new volley and wraps after the third segment. Dimmer segments show recent activity. The segments indicate incoming results without estimating the target's capacitor capacity.
 
