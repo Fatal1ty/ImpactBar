@@ -76,12 +76,29 @@ The neutralizer panel follows one target at a time. The lightning bolt and three
 
 For a display such as **`150 GJ · 321 GJ`**, the left number is the latest volley and the right number is the total drained from the current target. Synchronous module events within two seconds are added together for the volley display.
 
-| State | What it tells you |
-| --- | --- |
-| ![DRAINING](docs/images/state-draining.svg) | Neutralization is underway. |
-| ![DRY](docs/images/state-dry.svg) | A zero-GJ event was observed while draining or recovering, or as the first event. |
-| ![PINNED](docs/images/state-pinned.svg) | A low drain was observed, or a zero-GJ event followed `DRY` or `PINNED`. |
-| ![RECOVERED](docs/images/state-recovered.svg) | A sufficiently large drain was observed after `DRY` or `PINNED`. |
+<table>
+  <thead>
+    <tr><th width="120">State</th><th>What it tells you</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td width="120" nowrap><img src="docs/images/state-draining.svg" width="120" height="30" alt="DRAINING"></td>
+      <td>Neutralization is underway.</td>
+    </tr>
+    <tr>
+      <td width="120" nowrap><img src="docs/images/state-dry.svg" width="120" height="30" alt="DRY"></td>
+      <td>A zero-GJ event was observed while draining or recovering, or as the first event.</td>
+    </tr>
+    <tr>
+      <td width="120" nowrap><img src="docs/images/state-pinned.svg" width="120" height="30" alt="PINNED"></td>
+      <td>A low drain was observed, or a zero-GJ event followed <code>DRY</code> or <code>PINNED</code>.</td>
+    </tr>
+    <tr>
+      <td width="120" nowrap><img src="docs/images/state-recovered.svg" width="120" height="30" alt="RECOVERED"></td>
+      <td>A sufficiently large drain was observed after <code>DRY</code> or <code>PINNED</code>.</td>
+    </tr>
+  </tbody>
+</table>
 
 The bright segment advances with each new volley and wraps after the third segment. Dimmer segments show recent activity. The segments indicate incoming results without estimating the target's capacitor capacity.
 
