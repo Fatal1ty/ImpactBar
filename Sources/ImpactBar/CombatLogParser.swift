@@ -95,6 +95,13 @@ struct CombatLogParser {
         )
     }
 
+    func indicatesUndocking(_ rawLine: String) -> Bool {
+        let plain = stripMarkup(from: rawLine)
+        guard let range = plain.range(of: "(None)") else { return false }
+        let message = plain[range.upperBound...].trimmingCharacters(in: .whitespacesAndNewlines)
+        return message.hasPrefix("Undocking from ")
+    }
+
     func indicatesTargetGone(_ rawLine: String) -> Bool {
         guard rawLine.contains("(notify)") else { return false }
 

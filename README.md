@@ -17,12 +17,12 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/turret-overlay.png" width="368" alt="ImpactBar turret hit-quality overlay"><br>
+  <img src="docs/images/turret-overlay.gif" width="364" height="20" alt="Animated demonstration of the ImpactBar turret hit-quality overlay"><br>
   <sub>Turret hit-quality overlay</sub>
 </p>
 
 <p align="center">
-  <img src="docs/images/neutralizer-overlay.png" width="364" alt="ImpactBar energy-neutralizer overlay"><br>
+  <img src="docs/images/neutralizer-overlay.gif" width="364" height="68" alt="Animated demonstration of the ImpactBar energy-neutralizer overlay"><br>
   <sub>Energy-neutralizer overlay</sub>
 </p>
 
@@ -51,6 +51,7 @@ Current public builds are ad-hoc signed because the project does not yet use an 
 - One compact overlay for one active target at a time.
 - The first value is the amount drained during the latest module cycle.
 - The second value is the accumulated amount drained from the current target.
+- Neutralizer data resets after 10 minutes without a neutralizer event and on undocking. With Hide When Idle disabled, cleared values appear as dashes.
 - Three activity segments confirm that new cycles are still being observed without estimating the target's capacitor capacity.
 - `DRAINING`, `DRY`, `PINNED`, and `RECOVERED` state detection.
 - Positive drains at or below 50% of the current ceiling immediately indicate `PINNED`. A drain can adjust the ceiling or signal recovery only if it reaches at least 75% of the highest single drain observed for the target.

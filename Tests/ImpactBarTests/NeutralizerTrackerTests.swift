@@ -174,6 +174,24 @@ final class NeutralizerTrackerTests: XCTestCase {
         XCTAssertEqual(snapshot?.cadenceEventCount, 3)
     }
 
+    func testTenMinuteGapResetsTotalsCeilingAndCadenceForTheSameTarget() {
+        var tracker = NeutralizerTracker()
+        let start = Date(timeIntervalSince1970: 6_000)
+        _ = tracker.record(event: event(amount: 180), at: start)
+        _ = tracker.record(event: event(amount: 0), at: start.addingTimeInterval(12))
+
+        let snapshot = tracker.record(event: event(amount: 20), at: start.addingTimeInterval(612))
+        XCTAssertEqual(snapshot.lastAmountGJ, 20)
+        XCTAssertEqual(snapshot.totalAmountGJ, 20)
+        XCTAssertEqual(snapshot.state, .draining)
+        XCTAssertEqual(snapshot.cadenceIndex, 0)
+        XCTAssertEqual(snapshot.cadenceEventCount, 1)
+        XCTAssertEqual(
+            tracker.record(event: event(amount: 15), at: start.addingTimeInterval(624)).state,
+            .draining
+        )
+    }
+
     private func states(for amounts: [Int]) -> [NeutralizerState] {
         var tracker = NeutralizerTracker()
         let start = Date(timeIntervalSince1970: 0)

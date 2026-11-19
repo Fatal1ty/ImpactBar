@@ -63,6 +63,7 @@ final class ImpactBarModel: ObservableObject {
     private let classifier = TurretClassifier()
     private var tracker = TurretQualityTracker()
     private var neutralizerTracker = NeutralizerTracker()
+    private var neutralizerResetTimer: Timer?
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -78,15 +79,21 @@ final class ImpactBarModel: ObservableObject {
         ) as? Bool ?? true
     }
 
-    func consume(logLine: String) {
-        if parser.indicatesTargetGone(logLine) {
+    deinit {
+        neutralizerResetTimer?.invalidate()
+    }
+
+    func consume(logLine: String, at date: Date = Date()) {
+        if parser.indicatesTargetGone(logLine) || parser.indicatesUndocking(logLine) {
             reset()
             return
         }
 
+        resetNeutralizerIfInactive(at: date)
+
         if neutralizerFeatureEnabled,
            let event = parser.parseNeutralizer(logLine) {
-            publish(event)
+            publish(event, at: date)
             return
         }
 
@@ -155,6 +162,7 @@ final class ImpactBarModel: ObservableObject {
         )
         neutralizerLastEventAt = Date()
         neutralizerEventID &+= 1
+        scheduleNeutralizerReset()
     }
 
     func reset() {
@@ -166,6 +174,20 @@ final class ImpactBarModel: ObservableObject {
         lastEventAt = nil
         eventID &+= 1
 
+        resetNeutralizer()
+    }
+
+    func resetNeutralizerIfInactive(at date: Date) {
+        guard let lastEventAt = neutralizerLastEventAt,
+              date.timeIntervalSince(lastEventAt) >= NeutralizerTracker.inactivityTimeout else {
+            return
+        }
+        resetNeutralizer()
+    }
+
+    private func resetNeutralizer() {
+        neutralizerResetTimer?.invalidate()
+        neutralizerResetTimer = nil
         neutralizerTracker.reset()
         neutralizerLastAmountGJ = nil
         neutralizerTotalAmountGJ = nil
@@ -175,6 +197,20 @@ final class ImpactBarModel: ObservableObject {
         neutralizerLastEventAt = nil
         neutralizerIdleAfter = 25.5
         neutralizerEventID &+= 1
+    }
+
+    private func scheduleNeutralizerReset() {
+        neutralizerResetTimer?.invalidate()
+        guard let lastEventAt = neutralizerLastEventAt else { return }
+        let deadline = lastEventAt.addingTimeInterval(NeutralizerTracker.inactivityTimeout)
+        let delay = max(0, deadline.timeIntervalSinceNow)
+        let timer = Timer(timeInterval: delay, repeats: false) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.resetNeutralizerIfInactive(at: Date())
+            }
+        }
+        neutralizerResetTimer = timer
+        RunLoop.main.add(timer, forMode: .common)
     }
 
     private func publish(_ event: TurretHitEvent) {
@@ -193,8 +229,8 @@ final class ImpactBarModel: ObservableObject {
         }
     }
 
-    private func publish(_ event: NeutralizerEvent) {
-        let snapshot = neutralizerTracker.record(event: event, at: Date())
+    private func publish(_ event: NeutralizerEvent, at date: Date) {
+        let snapshot = neutralizerTracker.record(event: event, at: date)
 
         neutralizerLastAmountGJ = snapshot.lastAmountGJ
         neutralizerTotalAmountGJ = snapshot.totalAmountGJ
@@ -204,5 +240,6 @@ final class ImpactBarModel: ObservableObject {
         neutralizerLastEventAt = snapshot.lastEventAt
         neutralizerIdleAfter = snapshot.idleAfter
         neutralizerEventID &+= 1
+        scheduleNeutralizerReset()
     }
 }

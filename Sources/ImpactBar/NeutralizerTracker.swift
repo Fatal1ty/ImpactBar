@@ -19,6 +19,7 @@ struct NeutralizerSnapshot: Equatable {
 
 struct NeutralizerTracker {
     static let volleyWindow: TimeInterval = 2
+    static let inactivityTimeout: TimeInterval = 10 * 60
     static let cadenceSegmentCount = 3
     private static let pinnedThreshold = 0.50
     private static let recoveryThreshold = 0.75
@@ -35,7 +36,10 @@ struct NeutralizerTracker {
     private var peakDrainGJ = 0
 
     mutating func record(event: NeutralizerEvent, at date: Date) -> NeutralizerSnapshot {
-        if activeTarget != event.targetKey {
+        let timedOut = lastEventAt.map {
+            date.timeIntervalSince($0) >= Self.inactivityTimeout
+        } ?? false
+        if activeTarget != event.targetKey || timedOut {
             reset()
             activeTarget = event.targetKey
         }
